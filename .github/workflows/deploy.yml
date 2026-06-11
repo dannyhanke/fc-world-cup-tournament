@@ -28,8 +28,8 @@ jobs:
       - name: Inject secrets into HTML
         run: |
           sed -i \
-            -e 's/YOUR_API_KEY_HERE/${{ secrets.JSONBIN_API_KEY }}/g' \
-            -e 's/YOUR_BIN_ID_HERE/${{ secrets.JSONBIN_BIN_ID }}/g' \
+            -e 's|YOUR_API_KEY_HERE|${{ secrets.JSONBIN_API_KEY }}|g' \
+            -e 's|YOUR_BIN_ID_HERE|${{ secrets.JSONBIN_BIN_ID }}|g' \
             index.html
 
       - name: Upload Pages artifact
