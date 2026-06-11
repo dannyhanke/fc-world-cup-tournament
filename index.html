@@ -88,8 +88,7 @@ const DEFAULT_PLAYERS = ["Tsvetan Ilchev","Anton Georgiev","Sevgin Hashimov","Da
 const JSONBIN_API_KEY = "YOUR_API_KEY_HERE";
 const JSONBIN_BIN_ID  = "YOUR_BIN_ID_HERE";
 const JSONBIN_URL     = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
-const TOKEN_SET       = JSONBIN_API_KEY !== "YOUR_API_KEY_HERE" && JSONBIN_BIN_ID !== "YOUR_BIN_ID_HERE";
-const IS_HOST         = TOKEN_SET && typeof window !== "undefined" && new URLSearchParams(window.location.search).has("host");
+
 
 const syncLoad = async () => {
   const r = await fetch(`${JSONBIN_URL}/latest`, {
@@ -1440,7 +1439,7 @@ function App() {
 
   // Load from JSONBin on mount (everyone)
   useEffect(() => {
-    if (!TOKEN_SET) return;
+    
     setSyncStatus("loading");
     syncLoad()
       .then(snap => { if (snap?.version) restoreSnapshot(snap); setSyncStatus("ok"); setLastSyncAt(new Date()); })
@@ -1449,7 +1448,7 @@ function App() {
 
   // Auto-load every 30s — non-hosts only
   useEffect(() => {
-    if (!TOKEN_SET || IS_HOST) return;
+    
     const id = setInterval(() => {
       setSyncStatus("loading");
       syncLoad()
@@ -1469,7 +1468,7 @@ function App() {
 
   const handleSave = () => {
     const snap = buildSnapshot();
-    if (!TOKEN_SET) { alert("Sync not configured."); return; }
+    
     setSyncStatus("saving");
     syncSave(snap)
       .then(() => { setSyncStatus("ok"); setLastSyncAt(new Date()); })
@@ -1482,7 +1481,7 @@ function App() {
     setAdvancedTeams(null); setSim(null);
     setLiveGroupState(null); setLiveKoState(null); setLiveDraftState(null);
     setSyncStatus("idle"); setLastSyncAt(null);
-    if (TOKEN_SET) syncSave({}).then(() => {}).catch(() => {});
+    syncSave({}).then(() => {}).catch(() => {});
   };
 
   const startTournament = ({ players, selectedTeams, groups }) => {
@@ -1525,15 +1524,15 @@ function App() {
         padding: "6px 12px", fontSize: 12, color: "#cc3333",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontFamily: "Georgia, serif", cursor: "pointer",
       }}>🗑 Reset</button>
-      <button onClick={handleSave} disabled={!TOKEN_SET || syncStatus === "saving"} style={{
+      <button onClick={handleSave} disabled={syncStatus === "saving"} style={{
         background: "#ffffff",
-        border: `2px solid ${!TOKEN_SET ? "#cccccc" : syncStatus === "error" ? "#cc3333" : syncStatus === "saving" ? "#b8913a" : syncStatus === "ok" ? "#22a060" : "#b8913a"}`,
+        border: `2px solid ${syncStatus === "error" ? "#cc3333" : syncStatus === "saving" ? "#b8913a" : syncStatus === "ok" ? "#22a060" : "#b8913a"}`,
         borderRadius: 8, padding: "6px 14px", fontSize: 12, display: "flex", alignItems: "center", gap: 6,
-        color: !TOKEN_SET ? "#aaaaaa" : syncStatus === "error" ? "#cc3333" : syncStatus === "saving" ? "#b8913a" : syncStatus === "ok" ? "#22a060" : "#b8913a",
+        color: syncStatus === "error" ? "#cc3333" : syncStatus === "saving" ? "#b8913a" : syncStatus === "ok" ? "#22a060" : "#b8913a",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontFamily: "Georgia, serif",
-        cursor: !TOKEN_SET || syncStatus === "saving" ? "default" : "pointer",
+        cursor: syncStatus === "saving" ? "default" : "pointer",
       }}>
-        {!TOKEN_SET ? "⚪ Sync off" : syncStatus === "saving" ? "📤 Saving..." : syncStatus === "error" ? "❌ Retry save" : syncStatus === "ok" ? `✅ Saved ${lastSyncAt ? lastSyncAt.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : ""}` : "💾 Save"}
+        {syncStatus === "saving" ? "📤 Saving..." : syncStatus === "error" ? "❌ Retry save" : syncStatus === "ok" ? `✅ Saved ${lastSyncAt ? lastSyncAt.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : ""}` : "💾 Save"}
       </button>
     </div>
   );
