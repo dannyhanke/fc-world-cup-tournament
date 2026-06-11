@@ -1525,18 +1525,6 @@ function App() {
       .catch(() => setSyncStatus("error"));
   }, []);
 
-  // Auto-load every 30s — only during active play (not during setup/draft)
-  useEffect(() => {
-    if (phase !== "groups" && phase !== "knockout") return;
-    const id = setInterval(() => {
-      setSyncStatus("loading");
-      syncLoad()
-        .then(snap => { if (snap?.version) restoreSnapshot(snap); setSyncStatus("ok"); setLastSyncAt(new Date()); })
-        .catch(() => setSyncStatus("error"));
-    }, 30000);
-    return () => clearInterval(id);
-  }, [phase]);
-
   const handleLoadFile = (e) => {
     const file = e.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
