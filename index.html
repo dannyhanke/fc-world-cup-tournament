@@ -1415,6 +1415,8 @@ function App() {
   const [liveGroupState, setLiveGroupState] = useState(null);
   const [liveKoState, setLiveKoState] = useState(null);
   const [liveDraftState, setLiveDraftState] = useState(null);
+  const [syncStatus, setSyncStatus] = useState("idle");
+  const [lastSyncAt, setLastSyncAt] = useState(null);
 
   const buildSnapshot = () => ({
     version: 1, mode, phase, tournament, advancedTeams,
@@ -1438,6 +1440,27 @@ function App() {
     setPhase(snap.phase || "menu");
   };
 
+  // Load from JSONBin on mount (everyone)
+  useEffect(() => {
+    if (!TOKEN_SET) return;
+    setSyncStatus("loading");
+    syncLoad()
+      .then(snap => { if (snap?.version) restoreSnapshot(snap); setSyncStatus("ok"); setLastSyncAt(new Date()); })
+      .catch(() => setSyncStatus("error"));
+  }, []);
+
+  // Auto-load every 30s — non-hosts only
+  useEffect(() => {
+    if (!TOKEN_SET || IS_HOST) return;
+    const id = setInterval(() => {
+      setSyncStatus("loading");
+      syncLoad()
+        .then(snap => { if (snap?.version) restoreSnapshot(snap); setSyncStatus("ok"); setLastSyncAt(new Date()); })
+        .catch(() => setSyncStatus("error"));
+    }, 30000);
+    return () => clearInterval(id);
+  }, []);
+
   const handleLoadFile = (e) => {
     const file = e.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
@@ -1446,7 +1469,16 @@ function App() {
     e.target.value = "";
   };
 
-  const handleSave = () => downloadSave(buildSnapshot());
+  const handleSave = () => {
+    const snap = buildSnapshot();
+    downloadSave(snap);
+    if (TOKEN_SET) {
+      setSyncStatus("saving");
+      syncSave(snap)
+        .then(() => { setSyncStatus("ok"); setLastSyncAt(new Date()); })
+        .catch(() => setSyncStatus("error"));
+    }
+  };
 
   const startTournament = ({ players, selectedTeams, groups }) => {
     setSim(null); setLiveGroupState(null); setLiveKoState(null); setLiveDraftState(null);
@@ -1481,20 +1513,33 @@ function App() {
     setPhase("groups");
   };
 
-  const floatSave = (phase === "groups" || phase === "knockout") && (
+  const syncBadge = TOKEN_SET && (
+    <div style={{
+      position: "fixed", top: 10, right: 12, zIndex: 1000,
+      background: "#0d1017", border: `1px solid ${syncStatus === "error" ? "#ef444466" : syncStatus === "loading" || syncStatus === "saving" ? "#eab30866" : "#22c55e66"}`,
+      borderRadius: 6, padding: "4px 10px", fontSize: 11, display: "flex", alignItems: "center", gap: 5,
+      color: syncStatus === "error" ? "#ef4444" : syncStatus === "loading" || syncStatus === "saving" ? "#eab308" : "#22c55e",
+    }}>
+      {syncStatus === "loading" ? "🔄 Loading..." : syncStatus === "saving" ? "📤 Saving..." : syncStatus === "error" ? "❌ Sync error" : lastSyncAt ? `✅ ${lastSyncAt.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}` : "⚪ Ready"}
+      {IS_HOST && <span style={{ marginLeft: 4, color: "#c9a84c", fontWeight: 700 }}>· HOST</span>}
+    </div>
+  );
+
+  const floatSave = IS_HOST && (phase === "groups" || phase === "knockout") && (
     <button onClick={handleSave} style={{
       position: "fixed", bottom: 20, right: 16, zIndex: 999,
       background: "#131820", border: "1px solid #c9a84c66", borderRadius: 8,
       padding: "8px 14px", cursor: "pointer", fontFamily: "inherit", fontSize: 12,
       color: "#c9a84c", boxShadow: "0 2px 12px #0008",
-    }}>💾 Save</button>
+    }}>💾 Save &amp; Sync</button>
   );
 
   if (phase === "menu") return (
-    <ModeMenu onPick={m => { setMode(m); setPhase("setup"); }} onLoadFile={handleLoadFile} />
+    <>{syncBadge}<ModeMenu onPick={m => { setMode(m); setPhase("setup"); }} onLoadFile={handleLoadFile} /></>
   );
   if (phase === "setup") return (
     <>
+      {syncBadge}
       {mode === "real"
         ? <RealGroupsSetup
             onStart={startTournament} onAutoPlay={handleAutoPlay} onBack={() => setPhase("menu")}
@@ -1505,6 +1550,7 @@ function App() {
   );
   if (phase === "groups") return (
     <>
+      {syncBadge}
       <GroupStage
         players={tournament.players} selectedTeams={tournament.selectedTeams} groups={tournament.groups}
         initialScores={liveGroupState?.groupScores ?? sim?.groupScores}
@@ -1517,6 +1563,7 @@ function App() {
   );
   if (phase === "knockout") return (
     <>
+      {syncBadge}
       <KnockoutStage
         players={tournament.players} advancedTeams={advancedTeams}
         initialBracket={liveKoState?.koBracket ?? sim?.koBracket}
