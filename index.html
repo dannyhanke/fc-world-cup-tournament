@@ -717,7 +717,7 @@ function GroupStage({ players, selectedTeams, groups, onAdvance, initialScores, 
         <div style={{ fontSize: 10, color: MUTED, marginTop: 3 }}>Each group has 3 different players</div>
       </div>
 
-      {/* Tab bar — Overview + each group */}
+      {/* Tab bar — Overview + 2nd Places + each group */}
       <div style={{ display: "flex", overflowX: "auto", borderBottom: `1px solid ${BORDER}`, background: TABBAR }}>
         {/* Overview tab */}
         <button onClick={() => setActiveGroup("__overview__")} style={{
@@ -726,6 +726,13 @@ function GroupStage({ players, selectedTeams, groups, onAdvance, initialScores, 
           color: activeGroup === "__overview__" ? ACCENT : MUTED,
           borderBottom: activeGroup === "__overview__" ? `2px solid ${ACCENT}` : "2px solid transparent",
         }}>📋 Overview</button>
+        {/* 2nd places tab */}
+        <button onClick={() => setActiveGroup("__seconds__")} style={{
+          padding: "10px 16px", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 700, flexShrink: 0,
+          background: activeGroup === "__seconds__" ? "#fff" : "transparent",
+          color: activeGroup === "__seconds__" ? ACCENT : MUTED,
+          borderBottom: activeGroup === "__seconds__" ? `2px solid ${ACCENT}` : "2px solid transparent",
+        }}>🥈 2nd Places</button>
         {groupKeys.map(gk => {
           const done = getMatchPairs(gk).every(([, , k]) => played[k]);
           return (
@@ -771,8 +778,58 @@ function GroupStage({ players, selectedTeams, groups, onAdvance, initialScores, 
         </div>
       )}
 
+      {/* ── 2ND PLACES ── */}
+      {activeGroup === "__seconds__" && (() => {
+        const allSeconds = groupKeys.map(gk => {
+          const st = getStandings(gk);
+          return st[1] ? { ...st[1], groupKey: gk } : null;
+        }).filter(Boolean).sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+        return (
+          <div style={{ padding: "18px 16px", maxWidth: 680, margin: "0 auto" }}>
+            <p style={{ fontSize: 12, color: MUTED, textAlign: "center", marginBottom: 14 }}>
+              Top 4 advance to the knockout stage. Sorted by points, then goal difference, then goals scored.
+            </p>
+            <div style={{ background: CARD, borderRadius: 10, overflow: "hidden", border: `1px solid ${BORDER}`, boxShadow: "0 1px 4px #0001" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "28px 1fr 50px 42px 42px 42px 42px 42px", padding: "6px 13px", fontSize: 11, color: MUTED, letterSpacing: 1, borderBottom: `1px solid ${BORDER}`, background: "#f5f3ee" }}>
+                <span>#</span><span>TEAM</span><span style={{ textAlign: "center" }}>GRP</span><span style={{ textAlign: "center" }}>MP</span><span style={{ textAlign: "center" }}>GD</span><span style={{ textAlign: "center" }}>GF</span><span style={{ textAlign: "center" }}>GA</span><span style={{ textAlign: "center" }}>PTS</span>
+              </div>
+              {allSeconds.length === 0 && (
+                <div style={{ padding: "20px", textAlign: "center", color: MUTED, fontSize: 13 }}>No results yet — play some matches first.</div>
+              )}
+              {allSeconds.map((t, i) => (
+                <div key={t.name} style={{
+                  display: "grid", gridTemplateColumns: "28px 1fr 50px 42px 42px 42px 42px 42px",
+                  padding: "9px 13px", fontSize: 14,
+                  borderBottom: i < allSeconds.length - 1 ? `1px solid ${BORDER}` : "none",
+                  background: i < 4 ? "rgba(184,145,58,0.07)" : CARD,
+                }}>
+                  <span style={{ fontSize: 12, color: i < 4 ? ACCENT : MUTED, fontWeight: i < 4 ? 700 : 400 }}>{i + 1}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: PLAYER_COLORS[t.playerIdx], flexShrink: 0 }} />
+                    <span>{t.flag} {t.name}</span>
+                    <span style={{ fontSize: 11, color: PLAYER_COLORS[t.playerIdx] }}>({players[t.playerIdx]})</span>
+                    {i < 4 && <span style={{ fontSize: 10, color: ACCENT, fontWeight: 700 }}>✓ Q</span>}
+                  </div>
+                  <span style={{ textAlign: "center", fontSize: 12, color: MUTED }}>Grp {t.groupKey}</span>
+                  <span style={{ textAlign: "center", color: MUTED }}>{t.mp}</span>
+                  <span style={{ textAlign: "center", color: t.gd > 0 ? "#22a060" : t.gd < 0 ? "#cc3333" : MUTED }}>{t.gd > 0 ? "+" : ""}{t.gd}</span>
+                  <span style={{ textAlign: "center", color: MUTED }}>{t.gf}</span>
+                  <span style={{ textAlign: "center", color: MUTED }}>{t.ga}</span>
+                  <span style={{ textAlign: "center", fontWeight: 700, color: TEXT }}>{t.pts}</span>
+                </div>
+              ))}
+            </div>
+            {allSeconds.length > 0 && allSeconds.length < groupKeys.length && (
+              <p style={{ fontSize: 11, color: MUTED, textAlign: "center", marginTop: 10 }}>
+                {groupKeys.length - allSeconds.length} group{groupKeys.length - allSeconds.length !== 1 ? "s" : ""} still in progress
+              </p>
+            )}
+          </div>
+        );
+      })()}
+
       {/* ── GROUP DETAIL ── */}
-      {activeGroup && activeGroup !== "__overview__" && (() => {
+      {activeGroup && activeGroup !== "__overview__" && activeGroup !== "__seconds__" && (() => {
         const gTeams = groups[activeGroup] || [];
         const standings = getStandings(activeGroup);
         const pairs = getMatchPairs(activeGroup);
@@ -849,14 +906,7 @@ function GroupStage({ players, selectedTeams, groups, onAdvance, initialScores, 
         );
       })()}
 
-      {allGroupsDone && activeGroup !== "__overview__" && (
-        <div style={{ textAlign: "center", padding: "20px" }}>
-          <button onClick={handleAdvance} style={{ background: ACCENT, color: "#fff", border: "none", borderRadius: 8, padding: "14px 40px", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 3 }}>
-            ⚡ ADVANCE TO KNOCKOUT →
-          </button>
-        </div>
-      )}
-      {allGroupsDone && activeGroup === "__overview__" && (
+      {allGroupsDone && (
         <div style={{ textAlign: "center", padding: "20px" }}>
           <button onClick={handleAdvance} style={{ background: ACCENT, color: "#fff", border: "none", borderRadius: 8, padding: "14px 40px", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 3 }}>
             ⚡ ADVANCE TO KNOCKOUT →
