@@ -21,55 +21,84 @@
   <script type="text/babel">
 const { useState, useEffect } = React;
 
+// ISO 3166-1 alpha-2 codes for flag images
+const FLAG_ISO = {
+  "France":"fr","Argentina":"ar","England":"gb-eng","Spain":"es","Brazil":"br",
+  "Germany":"de","Portugal":"pt","Netherlands":"nl","Belgium":"be","Uruguay":"uy",
+  "Colombia":"co","Morocco":"ma","Senegal":"sn","USA":"us","Croatia":"hr",
+  "Japan":"jp","Mexico":"mx","South Korea":"kr","Norway":"no","Austria":"at",
+  "Switzerland":"ch","Ecuador":"ec","Tunisia":"tn","Australia":"au","Egypt":"eg",
+  "Ivory Coast":"ci","Algeria":"dz","DR Congo":"cd","Sweden":"se","Paraguay":"py",
+  "Ghana":"gh","Scotland":"gb-sct","Canada":"ca","Bosnia & Herz.":"ba",
+  "Saudi Arabia":"sa","Türkiye":"tr","Iran":"ir","Iraq":"iq","Cape Verde":"cv",
+  "South Africa":"za","New Zealand":"nz","Uzbekistan":"uz","Panama":"pa",
+  "Haiti":"ht","Jordan":"jo","Qatar":"qa","Curaçao":"cw","Czechia":"cz",
+};
+
+// Renders a flag image from flagcdn.com — works in all browsers
+const Flag = ({ name, size = 20 }) => {
+  const iso = FLAG_ISO[name];
+  if (!iso) return null;
+  return (
+    <img
+      src={`https://flagcdn.com/${size}x${Math.round(size*0.75)}/${iso}.png`}
+      srcSet={`https://flagcdn.com/${size*2}x${Math.round(size*2*0.75)}/${iso}.png 2x`}
+      width={size} height={Math.round(size * 0.75)}
+      alt={name}
+      style={{ display: "inline-block", verticalAlign: "middle", borderRadius: 2, objectFit: "cover", flexShrink: 0 }}
+    />
+  );
+};
+
 const ALL_TEAMS = [
-  { name: "France", flag: "🇫🇷", tier: 1 },
-  { name: "Argentina", flag: "🇦🇷", tier: 1 },
-  { name: "England", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier: 1 },
-  { name: "Spain", flag: "🇪🇸", tier: 1 },
-  { name: "Brazil", flag: "🇧🇷", tier: 1 },
-  { name: "Germany", flag: "🇩🇪", tier: 1 },
-  { name: "Portugal", flag: "🇵🇹", tier: 1 },
-  { name: "Netherlands", flag: "🇳🇱", tier: 1 },
-  { name: "Belgium", flag: "🇧🇪", tier: 1 },
-  { name: "Uruguay", flag: "🇺🇾", tier: 2 },
-  { name: "Colombia", flag: "🇨🇴", tier: 2 },
-  { name: "Morocco", flag: "🇲🇦", tier: 2 },
-  { name: "Senegal", flag: "🇸🇳", tier: 2 },
-  { name: "USA", flag: "🇺🇸", tier: 2 },
-  { name: "Croatia", flag: "🇭🇷", tier: 2 },
-  { name: "Japan", flag: "🇯🇵", tier: 2 },
-  { name: "Mexico", flag: "🇲🇽", tier: 2 },
-  { name: "South Korea", flag: "🇰🇷", tier: 3 },
-  { name: "Norway", flag: "🇳🇴", tier: 2 },
-  { name: "Austria", flag: "🇦🇹", tier: 3 },
-  { name: "Switzerland", flag: "🇨🇭", tier: 2 },
-  { name: "Ecuador", flag: "🇪🇨", tier: 3 },
-  { name: "Tunisia", flag: "🇹🇳", tier: 4 },
-  { name: "Australia", flag: "🇦🇺", tier: 3 },
-  { name: "Egypt", flag: "🇪🇬", tier: 3 },
-  { name: "Ivory Coast", flag: "🇨🇮", tier: 3 },
-  { name: "Algeria", flag: "🇩🇿", tier: 3 },
-  { name: "DR Congo", flag: "🇨🇩", tier: 4 },
-  { name: "Sweden", flag: "🇸🇪", tier: 2 },
-  { name: "Paraguay", flag: "🇵🇾", tier: 3 },
-  { name: "Ghana", flag: "🇬🇭", tier: 4 },
-  { name: "Scotland", flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿", tier: 3 },
-  { name: "Canada", flag: "🇨🇦", tier: 3 },
-  { name: "Bosnia & Herz.", flag: "🇧🇦", tier: 4 },
-  { name: "Saudi Arabia", flag: "🇸🇦", tier: 4 },
-  { name: "Türkiye", flag: "🇹🇷", tier: 3 },
-  { name: "Iran", flag: "🇮🇷", tier: 3 },
-  { name: "Iraq", flag: "🇮🇶", tier: 4 },
-  { name: "Cape Verde", flag: "🇨🇻", tier: 4 },
-  { name: "South Africa", flag: "🇿🇦", tier: 4 },
-  { name: "New Zealand", flag: "🇳🇿", tier: 4 },
-  { name: "Uzbekistan", flag: "🇺🇿", tier: 4 },
-  { name: "Panama", flag: "🇵🇦", tier: 4 },
-  { name: "Haiti", flag: "🇭🇹", tier: 4 },
-  { name: "Jordan", flag: "🇯🇴", tier: 4 },
-  { name: "Qatar", flag: "🇶🇦", tier: 4 },
-  { name: "Curaçao", flag: "🇨🇼", tier: 4 },
-  { name: "Czechia", flag: "🇨🇿", tier: 4 },
+  { name: "France", tier: 1 },
+  { name: "Argentina", tier: 1 },
+  { name: "England", tier: 1 },
+  { name: "Spain", tier: 1 },
+  { name: "Brazil", tier: 1 },
+  { name: "Germany", tier: 1 },
+  { name: "Portugal", tier: 1 },
+  { name: "Netherlands", tier: 1 },
+  { name: "Belgium", tier: 1 },
+  { name: "Uruguay", tier: 2 },
+  { name: "Colombia", tier: 2 },
+  { name: "Morocco", tier: 2 },
+  { name: "Senegal", tier: 2 },
+  { name: "USA", tier: 2 },
+  { name: "Croatia", tier: 2 },
+  { name: "Japan", tier: 2 },
+  { name: "Mexico", tier: 2 },
+  { name: "South Korea", tier: 3 },
+  { name: "Norway", tier: 2 },
+  { name: "Austria", tier: 3 },
+  { name: "Switzerland", tier: 2 },
+  { name: "Ecuador", tier: 3 },
+  { name: "Tunisia", tier: 4 },
+  { name: "Australia", tier: 3 },
+  { name: "Egypt", tier: 3 },
+  { name: "Ivory Coast", tier: 3 },
+  { name: "Algeria", tier: 3 },
+  { name: "DR Congo", tier: 4 },
+  { name: "Sweden", tier: 2 },
+  { name: "Paraguay", tier: 3 },
+  { name: "Ghana", tier: 4 },
+  { name: "Scotland", tier: 3 },
+  { name: "Canada", tier: 3 },
+  { name: "Bosnia & Herz.", tier: 4 },
+  { name: "Saudi Arabia", tier: 4 },
+  { name: "Türkiye", tier: 3 },
+  { name: "Iran", tier: 3 },
+  { name: "Iraq", tier: 4 },
+  { name: "Cape Verde", tier: 4 },
+  { name: "South Africa", tier: 4 },
+  { name: "New Zealand", tier: 4 },
+  { name: "Uzbekistan", tier: 4 },
+  { name: "Panama", tier: 4 },
+  { name: "Haiti", tier: 4 },
+  { name: "Jordan", tier: 4 },
+  { name: "Qatar", tier: 4 },
+  { name: "Curaçao", tier: 4 },
+  { name: "Czechia", tier: 4 },
 ];
 
 const TIER_LABEL = { 1: "Elite", 2: "Contender", 3: "Dark Horse", 4: "Underdog" };
@@ -585,7 +614,7 @@ function SetupPhase({ onStart, onAutoPlay }) {
                           textDecoration: isExcluded ? "line-through" : "none",
                           outline: activePlayer !== null && !isExcluded && !isAssigned ? `1px dashed ${PLAYER_COLORS[activePlayer]}55` : "none",
                         }}>
-                          {team.flag} {team.name}
+                          <Flag name={team.name} /> {team.name}
                           {isAssigned && <span style={{ display: "block", fontSize: 9, opacity: 0.85 }}>{players[assignedTo].split(" ")[0]}</span>}
                         </button>
                         <button onClick={() => toggleExclude(team.name)} style={{
@@ -765,7 +794,7 @@ function GroupStage({ players, selectedTeams, groups, onAdvance, initialScores, 
                       <div key={t.name} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0", borderBottom: i < standings.length - 1 ? `1px solid ${BORDER}` : "none" }}>
                         <span style={{ fontSize: 11, color: MUTED, width: 14, textAlign: "center" }}>{i + 1}</span>
                         <span style={{ width: 8, height: 8, borderRadius: "50%", background: PLAYER_COLORS[t.playerIdx], flexShrink: 0 }} />
-                        <span style={{ flex: 1, fontSize: 14 }}>{t.flag} {t.name}</span>
+                        <span style={{ flex: 1, fontSize: 14 }}><Flag name={t.name} /> {t.name}</span>
                         <span style={{ fontSize: 12, color: PLAYER_COLORS[t.playerIdx] }}>{players[t.playerIdx].split(" ")[0]}</span>
                         <span style={{ fontSize: 13, fontWeight: 700, minWidth: 22, textAlign: "right", color: TEXT }}>{t.pts}</span>
                       </div>
@@ -806,7 +835,7 @@ function GroupStage({ players, selectedTeams, groups, onAdvance, initialScores, 
                   <span style={{ fontSize: 12, color: i < 4 ? ACCENT : MUTED, fontWeight: i < 4 ? 700 : 400 }}>{i + 1}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ width: 8, height: 8, borderRadius: "50%", background: PLAYER_COLORS[t.playerIdx], flexShrink: 0 }} />
-                    <span>{t.flag} {t.name}</span>
+                    <span><Flag name={t.name} /> {t.name}</span>
                     <span style={{ fontSize: 11, color: PLAYER_COLORS[t.playerIdx] }}>({players[t.playerIdx]})</span>
                     {i < 4 && <span style={{ fontSize: 10, color: ACCENT, fontWeight: 700 }}>✓ Q</span>}
                   </div>
@@ -856,7 +885,7 @@ function GroupStage({ players, selectedTeams, groups, onAdvance, initialScores, 
                   <div key={t.name} style={{ display: "grid", gridTemplateColumns: "1fr 42px 42px 42px 42px 42px", padding: "9px 13px", fontSize: 15, borderBottom: i < standings.length - 1 ? `1px solid ${BORDER}` : "none", background: i === 0 ? "rgba(184,145,58,0.07)" : CARD }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ width: 9, height: 9, borderRadius: "50%", background: PLAYER_COLORS[t.playerIdx], display: "inline-block", flexShrink: 0 }} />
-                      <span>{t.flag} {t.name} <span style={{ color: PLAYER_COLORS[t.playerIdx], fontSize: 12 }}>({players[t.playerIdx]})</span></span>
+                      <span><Flag name={t.name} /> {t.name} <span style={{ color: PLAYER_COLORS[t.playerIdx], fontSize: 12 }}>({players[t.playerIdx]})</span></span>
                       {i === 0 && <span style={{ fontSize: 11, color: ACCENT }}>▲</span>}
                     </div>
                     <span style={{ textAlign: "center", color: MUTED }}>{t.mp}</span>
@@ -880,7 +909,7 @@ function GroupStage({ players, selectedTeams, groups, onAdvance, initialScores, 
                   <div key={key} style={{ background: isDone ? "rgba(34,160,96,0.06)" : CARD, border: `1px solid ${isDone ? "#22a06055" : BORDER}`, borderRadius: 10, padding: "13px 16px", marginBottom: 10, boxShadow: "0 1px 4px #0001" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <div style={{ flex: 1, textAlign: "right" }}>
-                        <div style={{ fontSize: 16 }}>{ta.flag} {ta.name}</div>
+                        <div style={{ fontSize: 16 }}><Flag name={ta.name} /> {ta.name}</div>
                         <div style={{ fontSize: 12, color: PLAYER_COLORS[ta.playerIdx] }}>{players[ta.playerIdx]}</div>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -891,7 +920,7 @@ function GroupStage({ players, selectedTeams, groups, onAdvance, initialScores, 
                           style={{ width: 44, textAlign: "center", background: isDone ? "#f5f3ee" : "#fff", border: `1px solid ${BORDER}`, borderRadius: 6, color: TEXT, fontFamily: "inherit", fontSize: 20, padding: "4px 0", fontWeight: 700 }} />
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 16 }}>{tb.flag} {tb.name}</div>
+                        <div style={{ fontSize: 16 }}><Flag name={tb.name} /> {tb.name}</div>
                         <div style={{ fontSize: 12, color: PLAYER_COLORS[tb.playerIdx] }}>{players[tb.playerIdx]}</div>
                       </div>
                       {!isDone
@@ -1035,7 +1064,7 @@ function KnockoutStage({ players, advancedTeams, initialBracket, initialScores, 
           <div key={si} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: si === 0 ? 5 : 0 }}>
             {team ? <>
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: PLAYER_COLORS[team.playerIdx], flexShrink: 0 }} />
-              <span style={{ flex: 1, fontSize: 12 }}>{team.flag} {team.name} <span style={{ color: PLAYER_COLORS[team.playerIdx], fontSize: 10 }}>({players[team.playerIdx]})</span></span>
+              <span style={{ flex: 1, fontSize: 12 }}><Flag name={team.name} /> {team.name} <span style={{ color: PLAYER_COLORS[team.playerIdx], fontSize: 10 }}>({players[team.playerIdx]})</span></span>
               <input type="number" min="0" value={s[`g${si}`] ?? ""} onChange={e => setScore(key, `g${si}`, e.target.value)} disabled={isDone}
                 style={{ width: 32, textAlign: "center", background: "#0d1117", border: "1px solid #2a3545", borderRadius: 3, color: "#e8e0d0", fontFamily: "inherit", fontSize: 14, padding: "2px 0" }} />
             </> : <span style={{ fontSize: 11, color: "#334455", flex: 1 }}>TBD</span>}
@@ -1070,7 +1099,7 @@ function KnockoutStage({ players, advancedTeams, initialBracket, initialScores, 
         <div style={{ background: "rgba(201,168,76,0.1)", border: "2px solid #c9a84c", margin: "14px", borderRadius: 10, padding: "14px", textAlign: "center" }}>
           <div style={{ fontSize: 28 }}>🏆</div>
           <div style={{ fontSize: 10, letterSpacing: 3, color: "#c9a84c", marginBottom: 3 }}>TOURNAMENT WINNER</div>
-          <div style={{ fontSize: 22, fontWeight: 700 }}>{bracket.winner.flag} {bracket.winner.name}</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}><Flag name={bracket.winner.name} /> {bracket.winner.name}</div>
           <div style={{ fontSize: 13, color: PLAYER_COLORS[bracket.winner.playerIdx], marginTop: 3 }}>{players[bracket.winner.playerIdx]}</div>
         </div>
       )}
@@ -1094,13 +1123,13 @@ function KnockoutStage({ players, advancedTeams, initialBracket, initialScores, 
                     color: "#e8e0d0", fontFamily: "inherit", fontSize: 13, fontWeight: 700,
                     transition: "background 0.15s",
                   }}>
-                    {t.flag} {t.name}
+                    <Flag name={t.name} /> {t.name}
                   </button>
                 ))}
               </div>
               {replacement && (
                 <div style={{ fontSize: 12, color: "#667788", borderTop: "1px solid #1e2533", paddingTop: 10 }}>
-                  The dropped slot will be filled by <strong style={{ color: "#aabbcc" }}>{replacement.flag} {replacement.name}</strong>
+                  The dropped slot will be filled by <strong style={{ color: "#aabbcc" }}><Flag name={replacement.name} /> {replacement.name}</strong>
                   <span style={{ color: PLAYER_COLORS[replacement.playerIdx] }}> ({players[replacement.playerIdx]})</span> — they had the best result from the previous round.
                 </div>
               )}
@@ -1353,7 +1382,7 @@ function RealGroupsSetup({ onStart, onAutoPlay, onBack, initialDraftState, onDra
               {autoNotice.timedOut
                 ? `⏱ Time expired: `
                 : `⚡ Auto-assigned: `}
-              <strong>{autoNotice.playerName.split(" ")[0]}</strong> received {teamByName[autoNotice.team]?.flag} {autoNotice.team} (Group {autoNotice.group})
+              <strong>{autoNotice.playerName.split(" ")[0]}</strong> received {null} <Flag name={autoNotice.team} /> (Group {autoNotice.group})
               {autoNotice.timedOut ? " — ran out of time." : " — no valid group was available."}
             </div>
           )}
@@ -1394,7 +1423,7 @@ function RealGroupsSetup({ onStart, onAutoPlay, onBack, initialDraftState, onDra
                           textDecoration: isDropped ? "line-through" : "none",
                         }}>
                           <span style={{ width: 8, height: 8, borderRadius: "50%", background: TIER_COLOR[t.tier], flexShrink: 0, opacity: isDropped ? 0.2 : 1 }} />
-                          <span style={{ flex: 1, minWidth: 0 }}>{t.flag} {t.name}</span>
+                          <span style={{ flex: 1, minWidth: 0 }}><Flag name={t.name} /> {t.name}</span>
                           {isEliteLocked && <span style={{ fontSize: 10, color: "#6b5a20" }}>🔒</span>}
                           {isClaimed && <span style={{ fontSize: 11, opacity: 0.85 }}>{players[owner].split(" ")[0]}</span>}
                         </button>
