@@ -460,59 +460,57 @@ function SetupPhase({ onStart, onAutoPlay }) {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0f1117", color: "#e8e0d0", fontFamily: "'Georgia', serif" }}>
+    <div style={{ minHeight: "100vh", background: "#f8f7f4", color: "#1a1a18", fontFamily: "'Georgia', serif" }}>
       {/* Header */}
-      <div style={{ background: "linear-gradient(135deg,#1a1f2e,#0f1117)", borderBottom: "2px solid #c9a84c", padding: "18px 20px 14px", textAlign: "center" }}>
-        <div style={{ fontSize: 11, letterSpacing: 5, color: "#c9a84c", marginBottom: 3 }}>FC TOURNAMENT</div>
-        <h1 style={{ margin: 0, fontSize: 24, background: "linear-gradient(90deg,#c9a84c,#f5e1a4,#c9a84c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-          World Cup 2026 Edition
-        </h1>
-        <div style={{ fontSize: 10, color: "#445566", marginTop: 3, letterSpacing: 2 }}>TOURNAMENT SETUP</div>
+      <div style={{ background: "#fff", borderBottom: "2px solid #b8913a", padding: "18px 20px 14px", textAlign: "center" }}>
+        <div style={{ fontSize: 11, letterSpacing: 5, color: "#b8913a", marginBottom: 3 }}>FC TOURNAMENT</div>
+        <h1 style={{ margin: 0, fontSize: 24, color: "#b8913a", fontWeight: 700 }}>World Cup 2026 Edition</h1>
+        <div style={{ fontSize: 10, color: "#888880", marginTop: 3, letterSpacing: 2 }}>TOURNAMENT SETUP</div>
       </div>
 
       {/* Tabs */}
-      <div style={{ display: "flex", borderBottom: "1px solid #1e2533", background: "#0d1017" }}>
+      <div style={{ display: "flex", borderBottom: "1px solid #e0dbd0", background: "#f0ede6" }}>
         {[["players", "👥 Players"], ["teams", "⚽ Teams"]].map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)} style={{
             flex: 1, padding: "11px 8px", border: "none", cursor: "pointer", fontFamily: "inherit",
             fontSize: 11, letterSpacing: 2, textTransform: "uppercase",
-            background: tab === key ? "#1a2030" : "transparent",
-            color: tab === key ? "#c9a84c" : "#445566",
-            borderBottom: tab === key ? "2px solid #c9a84c" : "2px solid transparent",
+            background: tab === key ? "#fff" : "transparent",
+            color: tab === key ? "#b8913a" : "#888880",
+            borderBottom: tab === key ? "2px solid #b8913a" : "2px solid transparent",
           }}>{label}</button>
         ))}
       </div>
 
       {tab === "players" && (
         <div style={{ padding: "20px 16px" }}>
-          <p style={{ color: "#556677", fontSize: 12, textAlign: "center", margin: "0 0 6px", letterSpacing: 1 }}>
+          <p style={{ color: "#888880", fontSize: 12, textAlign: "center", margin: "0 0 6px", letterSpacing: 1 }}>
             Enter names in seed order (1 = strongest). Handicap: seeds 1–3 get 3 teams, 4–6 get 4, 7–9 get 5.
           </p>
-          <p style={{ color: "#445566", fontSize: 11, textAlign: "center", margin: "0 0 16px", letterSpacing: 1 }}>
+          <p style={{ color: "#aaaaaa", fontSize: 11, textAlign: "center", margin: "0 0 16px", letterSpacing: 1 }}>
             Groups are auto-built so each group always has 3 different players.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8, maxWidth: 420, margin: "0 auto 20px" }}>
             {players.map((p, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, background: "#131820", border: `1px solid ${PLAYER_COLORS[i]}44`, borderRadius: 8, padding: "8px 10px" }}>
-                <span style={{ fontSize: 11, color: "#556677", fontWeight: 700, minWidth: 16 }}>{i + 1}</span>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", border: `1px solid ${PLAYER_COLORS[i]}66`, borderRadius: 8, padding: "8px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                <span style={{ fontSize: 11, color: "#888880", fontWeight: 700, minWidth: 16 }}>{i + 1}</span>
                 <div style={{ width: 10, height: 10, borderRadius: "50%", background: PLAYER_COLORS[i], flexShrink: 0 }} />
                 <input value={p} onChange={e => setPlayers(prev => prev.map((x, j) => j === i ? e.target.value : x))}
-                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: "#e8e0d0", fontFamily: "inherit", fontSize: 13 }} />
-                <span style={{ fontSize: 10, color: playerTeamCount[i] === teamQuota(i, players.length) ? "#22c55e" : PLAYER_COLORS[i], fontWeight: 700, minWidth: 30, textAlign: "right" }}>{playerTeamCount[i]}/{teamQuota(i, players.length)}</span>
+                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: "#1a1a18", fontFamily: "inherit", fontSize: 13 }} />
+                <span style={{ fontSize: 10, color: playerTeamCount[i] === teamQuota(i, players.length) ? "#22a060" : PLAYER_COLORS[i], fontWeight: 700, minWidth: 30, textAlign: "right" }}>{playerTeamCount[i]}/{teamQuota(i, players.length)}</span>
               </div>
             ))}
           </div>
           <div style={{ textAlign: "center" }}>
             <button onClick={() => setTab("teams")} style={{
-              background: "#c9a84c", color: "#0f1117", border: "none", borderRadius: 6,
+              background: "#b8913a", color: "#fff", border: "none", borderRadius: 6,
               padding: "10px 28px", fontFamily: "inherit", fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: 2
             }}>NEXT: ASSIGN TEAMS →</button>
             <div style={{ marginTop: 16 }}>
               <button onClick={() => onAutoPlay(players)} style={{
-                background: "transparent", color: "#c9a84c", border: "1px solid #c9a84c66", borderRadius: 6,
+                background: "transparent", color: "#b8913a", border: "1px solid #b8913a66", borderRadius: 6,
                 padding: "9px 24px", fontFamily: "inherit", fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: 2
               }}>⚡ AUTO-PLAY (QUICK SIM)</button>
-              <div style={{ fontSize: 10, color: "#445566", marginTop: 6 }}>Auto-drafts teams & simulates the whole tournament</div>
+              <div style={{ fontSize: 10, color: "#aaaaaa", marginTop: 6 }}>Auto-drafts teams & simulates the whole tournament</div>
             </div>
           </div>
         </div>
@@ -522,35 +520,35 @@ function SetupPhase({ onStart, onAutoPlay }) {
         <div style={{ padding: "14px 14px 90px" }}>
           {/* Status */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, color: "#c9a84c", background: "#131820", borderRadius: 4, padding: "4px 10px", border: "1px solid #c9a84c33" }}>
+            <span style={{ fontSize: 11, color: "#b8913a", background: "#fff", borderRadius: 4, padding: "4px 10px", border: "1px solid #b8913a33" }}>
               {available.length} teams
             </span>
-            <span style={{ fontSize: 11, color: allAssigned ? "#22c55e" : "#ef4444", background: "#131820", borderRadius: 4, padding: "4px 10px", border: `1px solid ${allAssigned ? "#22c55e33" : "#ef444433"}` }}>
+            <span style={{ fontSize: 11, color: allAssigned ? "#22a060" : "#cc3333", background: "#fff", borderRadius: 4, padding: "4px 10px", border: `1px solid ${allAssigned ? "#22a06033" : "#cc333333"}` }}>
               {assignedCount}/{available.length} assigned
             </span>
             {excluded.size > 0 && (
-              <span style={{ fontSize: 11, color: "#778899", background: "#131820", borderRadius: 4, padding: "4px 10px", border: "1px solid #33404d" }}>
+              <span style={{ fontSize: 11, color: "#888880", background: "#fff", borderRadius: 4, padding: "4px 10px", border: "1px solid #e0dbd0" }}>
                 {excluded.size} dropped
               </span>
             )}
           </div>
 
-          <div style={{ background: "#131820", border: "1px solid #1e2533", borderRadius: 8, padding: "9px 13px", marginBottom: 12, fontSize: 12, color: "#778899", lineHeight: 1.6 }}>
-            <strong style={{ color: "#c9a84c" }}>How to assign:</strong> Select a player → tap teams to assign (up to their quota). Tap again to unassign. Once every player is full, the leftover nations are removed automatically.
+          <div style={{ background: "#fff", border: "1px solid #e0dbd0", borderRadius: 8, padding: "9px 13px", marginBottom: 12, fontSize: 12, color: "#888880", lineHeight: 1.6 }}>
+            <strong style={{ color: "#b8913a" }}>How to assign:</strong> Select a player → tap teams to assign (up to their quota). Tap again to unassign. Once every player is full, the leftover nations are removed automatically.
           </div>
 
           {/* Player selector */}
           <div style={{ display: "flex", gap: 5, flexWrap: "wrap", justifyContent: "center", marginBottom: 12 }}>
             <button onClick={() => setActivePlayer(null)} style={{
-              padding: "5px 10px", borderRadius: 4, border: "1px solid #2a3040", cursor: "pointer",
-              background: activePlayer === null ? "#2a3040" : "transparent",
-              color: activePlayer === null ? "#fff" : "#556677",
+              padding: "5px 10px", borderRadius: 4, border: "1px solid #e0dbd0", cursor: "pointer",
+              background: activePlayer === null ? "#e0dbd0" : "#fff",
+              color: activePlayer === null ? "#1a1a18" : "#888880",
               fontSize: 11, fontFamily: "inherit"
             }}>👁 View</button>
             {players.map((p, i) => (
               <button key={i} onClick={() => setActivePlayer(i)} style={{
                 padding: "5px 10px", borderRadius: 4, border: `1px solid ${PLAYER_COLORS[i]}66`, cursor: "pointer",
-                background: activePlayer === i ? PLAYER_COLORS[i] : "transparent",
+                background: activePlayer === i ? PLAYER_COLORS[i] : "#fff",
                 color: activePlayer === i ? "#fff" : PLAYER_COLORS[i],
                 fontSize: 11, fontFamily: "inherit", fontWeight: activePlayer === i ? 700 : 400
               }}>{p} ({playerTeamCount[i]}/{teamQuota(i, players.length)})</button>
@@ -558,8 +556,8 @@ function SetupPhase({ onStart, onAutoPlay }) {
           </div>
 
           {activePlayer !== null
-            ? <p style={{ textAlign: "center", fontSize: 11, color: "#556677", margin: "0 0 12px" }}>Assigning to <strong style={{ color: PLAYER_COLORS[activePlayer] }}>{players[activePlayer]}</strong></p>
-            : <p style={{ textAlign: "center", fontSize: 11, color: "#445566", margin: "0 0 12px" }}>↑ Select a player first</p>
+            ? <p style={{ textAlign: "center", fontSize: 11, color: "#888880", margin: "0 0 12px" }}>Assigning to <strong style={{ color: PLAYER_COLORS[activePlayer] }}>{players[activePlayer]}</strong></p>
+            : <p style={{ textAlign: "center", fontSize: 11, color: "#aaaaaa", margin: "0 0 12px" }}>↑ Select a player first</p>
           }
 
           {/* Teams by tier — one column per tier */}
@@ -581,9 +579,9 @@ function SetupPhase({ onStart, onAutoPlay }) {
                           flex: 1, minWidth: 0, textAlign: "left",
                           padding: "5px 6px", borderRadius: 4,
                           cursor: isExcluded ? "default" : "pointer",
-                          border: `1px solid ${isExcluded ? "#1a2030" : isAssigned ? aColor + "99" : activePlayer !== null ? "#3a4a5a" : "#2a3545"}`,
-                          background: isExcluded ? "#0d1017" : isAssigned ? aColor + "28" : "#131820",
-                          color: isExcluded ? "#2a3040" : isAssigned ? aColor : "#8899aa",
+                          border: `1px solid ${isExcluded ? "#e0dbd0" : isAssigned ? aColor + "99" : activePlayer !== null ? "#c8c0b0" : "#e0dbd0"}`,
+                          background: isExcluded ? "#f0ede6" : isAssigned ? aColor + "18" : "#fff",
+                          color: isExcluded ? "#bbbbbb" : isAssigned ? aColor : "#444440",
                           fontSize: 11, fontFamily: "inherit", lineHeight: 1.25,
                           textDecoration: isExcluded ? "line-through" : "none",
                           outline: activePlayer !== null && !isExcluded && !isAssigned ? `1px dashed ${PLAYER_COLORS[activePlayer]}55` : "none",
@@ -593,7 +591,7 @@ function SetupPhase({ onStart, onAutoPlay }) {
                         </button>
                         <button onClick={() => toggleExclude(team.name)} style={{
                           background: "none", border: "none", cursor: "pointer", padding: "0 2px",
-                          fontSize: 12, color: isExcluded ? "#22c55e" : "#334455", lineHeight: 1,
+                          fontSize: 12, color: isExcluded ? "#22a060" : "#bbbbbb", lineHeight: 1,
                         }}>{isExcluded ? "+" : "×"}</button>
                       </div>
                     );
@@ -604,7 +602,7 @@ function SetupPhase({ onStart, onAutoPlay }) {
           </div>
 
           {groupError && (
-            <div style={{ background: "#2a1010", border: "1px solid #ef444466", borderRadius: 8, padding: "10px 14px", marginTop: 10, fontSize: 12, color: "#ef4444" }}>
+            <div style={{ background: "#fff0f0", border: "1px solid #cc333366", borderRadius: 8, padding: "10px 14px", marginTop: 10, fontSize: 12, color: "#cc3333" }}>
               ⚠️ {groupError}
             </div>
           )}
@@ -613,19 +611,19 @@ function SetupPhase({ onStart, onAutoPlay }) {
 
       {/* Sticky bottom button */}
       {tab === "teams" && (
-        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, #0f1117 35%)", padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, #f8f7f4 35%)", padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
           {!allAssigned && (
-            <div style={{ fontSize: 11, color: "#ef4444" }}>
+            <div style={{ fontSize: 11, color: "#cc3333" }}>
               {unassignedCount} team{unassignedCount !== 1 ? "s" : ""} still unassigned
             </div>
           )}
           <button onClick={allAssigned ? handleStart : undefined} style={{
-            background: allAssigned ? "linear-gradient(135deg,#c9a84c,#f5e1a4)" : "#1a2030",
-            color: allAssigned ? "#0f1117" : "#334455",
-            border: allAssigned ? "none" : "1px solid #2a3040",
+            background: allAssigned ? "#b8913a" : "#e0dbd0",
+            color: allAssigned ? "#fff" : "#aaaaaa",
+            border: "none",
             borderRadius: 8, padding: "12px 40px", fontFamily: "inherit",
             fontSize: 13, fontWeight: 700, cursor: allAssigned ? "pointer" : "not-allowed",
-            letterSpacing: 3, transition: "all 0.2s",
+            letterSpacing: 3,
           }}>
             {allAssigned ? "🏆 BUILD GROUPS & START" : "⏳ ASSIGN ALL TEAMS FIRST"}
           </button>
@@ -1417,19 +1415,6 @@ function App() {
   const [liveDraftState, setLiveDraftState] = useState(null);
   const [syncStatus, setSyncStatus] = useState("idle");
   const [lastSyncAt, setLastSyncAt] = useState(null);
-  const syncTimer = React.useRef(null);
-
-  // Debounced auto-save — waits 1.5s after last change before pushing to JSONBin
-  const autoSync = (snap) => {
-    if (!TOKEN_SET) return;
-    clearTimeout(syncTimer.current);
-    syncTimer.current = setTimeout(() => {
-      setSyncStatus("saving");
-      syncSave(snap)
-        .then(() => { setSyncStatus("ok"); setLastSyncAt(new Date()); })
-        .catch(() => setSyncStatus("error"));
-    }, 1500);
-  };
 
   const buildSnapshot = () => ({
     version: 1, mode, phase, tournament, advancedTeams,
@@ -1484,13 +1469,20 @@ function App() {
 
   const handleSave = () => {
     const snap = buildSnapshot();
-    downloadSave(snap);
-    if (TOKEN_SET) {
-      setSyncStatus("saving");
-      syncSave(snap)
-        .then(() => { setSyncStatus("ok"); setLastSyncAt(new Date()); })
-        .catch(() => setSyncStatus("error"));
-    }
+    if (!TOKEN_SET) { alert("Sync not configured."); return; }
+    setSyncStatus("saving");
+    syncSave(snap)
+      .then(() => { setSyncStatus("ok"); setLastSyncAt(new Date()); })
+      .catch(() => { setSyncStatus("error"); alert("Sync failed — check your connection."); });
+  };
+
+  const handleReset = () => {
+    if (!window.confirm("Reset everything and start over? This will clear the shared data too.")) return;
+    setPhase("menu"); setMode("custom"); setTournament(null);
+    setAdvancedTeams(null); setSim(null);
+    setLiveGroupState(null); setLiveKoState(null); setLiveDraftState(null);
+    setSyncStatus("idle"); setLastSyncAt(null);
+    if (TOKEN_SET) syncSave({}).then(() => {}).catch(() => {});
   };
 
   const startTournament = ({ players, selectedTeams, groups }) => {
@@ -1526,26 +1518,27 @@ function App() {
     setPhase("groups");
   };
 
-  const syncBadge = TOKEN_SET && (
-    <div style={{
-      position: "fixed", top: 10, right: 12, zIndex: 1000,
-      background: "#0d1017", border: `1px solid ${syncStatus === "error" ? "#ef444466" : syncStatus === "loading" || syncStatus === "saving" ? "#eab30866" : "#22c55e66"}`,
-      borderRadius: 6, padding: "4px 10px", fontSize: 11, display: "flex", alignItems: "center", gap: 5,
-      color: syncStatus === "error" ? "#ef4444" : syncStatus === "loading" || syncStatus === "saving" ? "#eab308" : "#22c55e",
-    }}>
-      {syncStatus === "loading" ? "🔄 Loading..." : syncStatus === "saving" ? "📤 Saving..." : syncStatus === "error" ? "❌ Sync error" : lastSyncAt ? `✅ ${lastSyncAt.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}` : "⚪ Ready"}
-      {IS_HOST && <span style={{ marginLeft: 4, color: "#c9a84c", fontWeight: 700 }}>· HOST</span>}
+  const syncBadge = (
+    <div style={{ position: "fixed", top: 10, right: 12, zIndex: 9999, display: "flex", gap: 6 }}>
+      <button onClick={handleReset} style={{
+        background: "#ffffff", border: "2px solid #cc3333", borderRadius: 8,
+        padding: "6px 12px", fontSize: 12, color: "#cc3333",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontFamily: "Georgia, serif", cursor: "pointer",
+      }}>🗑 Reset</button>
+      <button onClick={handleSave} disabled={!TOKEN_SET || syncStatus === "saving"} style={{
+        background: "#ffffff",
+        border: `2px solid ${!TOKEN_SET ? "#cccccc" : syncStatus === "error" ? "#cc3333" : syncStatus === "saving" ? "#b8913a" : syncStatus === "ok" ? "#22a060" : "#b8913a"}`,
+        borderRadius: 8, padding: "6px 14px", fontSize: 12, display: "flex", alignItems: "center", gap: 6,
+        color: !TOKEN_SET ? "#aaaaaa" : syncStatus === "error" ? "#cc3333" : syncStatus === "saving" ? "#b8913a" : syncStatus === "ok" ? "#22a060" : "#b8913a",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontFamily: "Georgia, serif",
+        cursor: !TOKEN_SET || syncStatus === "saving" ? "default" : "pointer",
+      }}>
+        {!TOKEN_SET ? "⚪ Sync off" : syncStatus === "saving" ? "📤 Saving..." : syncStatus === "error" ? "❌ Retry save" : syncStatus === "ok" ? `✅ Saved ${lastSyncAt ? lastSyncAt.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : ""}` : "💾 Save"}
+      </button>
     </div>
   );
 
-  const floatSave = (phase === "groups" || phase === "knockout") && (
-    <button onClick={handleSave} style={{
-      position: "fixed", bottom: 20, right: 16, zIndex: 999,
-      background: "#131820", border: "1px solid #c9a84c66", borderRadius: 8,
-      padding: "8px 14px", cursor: "pointer", fontFamily: "inherit", fontSize: 12,
-      color: "#c9a84c", boxShadow: "0 2px 12px #0008",
-    }}>💾 Save &amp; Sync</button>
-  );
+  const floatSave = null;
 
   if (phase === "menu") return (
     <>{syncBadge}<ModeMenu onPick={m => { setMode(m); setPhase("setup"); }} onLoadFile={handleLoadFile} /></>
@@ -1556,7 +1549,7 @@ function App() {
       {mode === "real"
         ? <RealGroupsSetup
             onStart={startTournament} onAutoPlay={handleAutoPlay} onBack={() => setPhase("menu")}
-            initialDraftState={liveDraftState} onDraftStateChange={s => { setLiveDraftState(s); autoSync({...buildSnapshot(), draftState: s}); }}
+            initialDraftState={liveDraftState} onDraftStateChange={setLiveDraftState}
           />
         : <SetupPhase onStart={startTournament} onAutoPlay={handleAutoPlay} />}
     </>
@@ -1568,8 +1561,8 @@ function App() {
         players={tournament.players} selectedTeams={tournament.selectedTeams} groups={tournament.groups}
         initialScores={liveGroupState?.groupScores ?? sim?.groupScores}
         initialPlayed={liveGroupState?.groupPlayed ?? sim?.groupPlayed}
-        onAdvance={t => { setAdvancedTeams(t); setPhase("knockout"); if (TOKEN_SET) { const snap = {...buildSnapshot(), advancedTeams: t, phase: "knockout"}; syncSave(snap).then(()=>{setSyncStatus("ok");setLastSyncAt(new Date());}).catch(()=>setSyncStatus("error")); } }}
-        onStateChange={s => { setLiveGroupState(s); autoSync(buildSnapshot()); }}
+        onAdvance={t => { setAdvancedTeams(t); setPhase("knockout"); }}
+        onStateChange={setLiveGroupState}
       />
       {floatSave}
     </>
@@ -1583,7 +1576,7 @@ function App() {
         initialScores={liveKoState?.koScores   ?? sim?.koScores}
         initialConfirmed={liveKoState?.koConfirmed ?? sim?.koConfirmed}
         seedFn={mode === "real" ? seedFixedBracket : seedKnockout}
-        onStateChange={s => { setLiveKoState(s); autoSync(buildSnapshot()); }}
+        onStateChange={setLiveKoState}
       />
       {floatSave}
     </>
