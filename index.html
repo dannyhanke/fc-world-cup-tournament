@@ -1417,6 +1417,19 @@ function App() {
   const [liveDraftState, setLiveDraftState] = useState(null);
   const [syncStatus, setSyncStatus] = useState("idle");
   const [lastSyncAt, setLastSyncAt] = useState(null);
+  const syncTimer = React.useRef(null);
+
+  // Debounced auto-save — waits 1.5s after last change before pushing to JSONBin
+  const autoSync = (snap) => {
+    if (!TOKEN_SET) return;
+    clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(() => {
+      setSyncStatus("saving");
+      syncSave(snap)
+        .then(() => { setSyncStatus("ok"); setLastSyncAt(new Date()); })
+        .catch(() => setSyncStatus("error"));
+    }, 1500);
+  };
 
   const buildSnapshot = () => ({
     version: 1, mode, phase, tournament, advancedTeams,
@@ -1525,7 +1538,7 @@ function App() {
     </div>
   );
 
-  const floatSave = IS_HOST && (phase === "groups" || phase === "knockout") && (
+  const floatSave = (phase === "groups" || phase === "knockout") && (
     <button onClick={handleSave} style={{
       position: "fixed", bottom: 20, right: 16, zIndex: 999,
       background: "#131820", border: "1px solid #c9a84c66", borderRadius: 8,
@@ -1543,7 +1556,7 @@ function App() {
       {mode === "real"
         ? <RealGroupsSetup
             onStart={startTournament} onAutoPlay={handleAutoPlay} onBack={() => setPhase("menu")}
-            initialDraftState={liveDraftState} onDraftStateChange={setLiveDraftState}
+            initialDraftState={liveDraftState} onDraftStateChange={s => { setLiveDraftState(s); autoSync({...buildSnapshot(), draftState: s}); }}
           />
         : <SetupPhase onStart={startTournament} onAutoPlay={handleAutoPlay} />}
     </>
@@ -1555,8 +1568,8 @@ function App() {
         players={tournament.players} selectedTeams={tournament.selectedTeams} groups={tournament.groups}
         initialScores={liveGroupState?.groupScores ?? sim?.groupScores}
         initialPlayed={liveGroupState?.groupPlayed ?? sim?.groupPlayed}
-        onAdvance={t => { setAdvancedTeams(t); setPhase("knockout"); }}
-        onStateChange={setLiveGroupState}
+        onAdvance={t => { setAdvancedTeams(t); setPhase("knockout"); if (TOKEN_SET) { const snap = {...buildSnapshot(), advancedTeams: t, phase: "knockout"}; syncSave(snap).then(()=>{setSyncStatus("ok");setLastSyncAt(new Date());}).catch(()=>setSyncStatus("error")); } }}
+        onStateChange={s => { setLiveGroupState(s); autoSync(buildSnapshot()); }}
       />
       {floatSave}
     </>
@@ -1570,7 +1583,7 @@ function App() {
         initialScores={liveKoState?.koScores   ?? sim?.koScores}
         initialConfirmed={liveKoState?.koConfirmed ?? sim?.koConfirmed}
         seedFn={mode === "real" ? seedFixedBracket : seedKnockout}
-        onStateChange={setLiveKoState}
+        onStateChange={s => { setLiveKoState(s); autoSync(buildSnapshot()); }}
       />
       {floatSave}
     </>
