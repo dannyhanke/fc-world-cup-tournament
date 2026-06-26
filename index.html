@@ -1317,6 +1317,13 @@
       const [resolvedSelfMatches, setResolvedSelfMatches] = useState({});
       const [showGroups, setShowGroups] = useState(false);
 
+      // Save the bracket immediately on mount so it persists even before any match is played
+      useEffect(() => {
+        if (!initialBracket && onStateChange) {
+          onStateChange({ koBracket: bracket, koScores: scores, koConfirmed: confirmed });
+        }
+      }, []);
+
       const setScore = (key, side, val) => setScores(prev => {
         const next = { ...prev, [key]: { ...prev[key], [side]: val === "" ? "" : Math.max(0, parseInt(val) || 0) } };
         onStateChange && onStateChange({ koBracket: bracket, koScores: next, koConfirmed: confirmed });
@@ -1927,7 +1934,7 @@
         version: 1, mode, phase, tournament, advancedTeams,
         groupScores: liveGroupState?.groupScores ?? sim?.groupScores,
         groupPlayed: liveGroupState?.groupPlayed ?? sim?.groupPlayed,
-        // koBracket intentionally excluded — always re-seeded on load
+        koBracket: liveKoState?.koBracket ?? sim?.koBracket,
         koScores: liveKoState?.koScores ?? sim?.koScores,
         koConfirmed: liveKoState?.koConfirmed ?? sim?.koConfirmed,
         draftState: liveDraftState,
@@ -1938,9 +1945,9 @@
         setMode(snap.mode || "custom");
         setTournament(snap.tournament || null);
         setAdvancedTeams(snap.advancedTeams || null);
-        setSim({ groupScores: snap.groupScores, groupPlayed: snap.groupPlayed, koBracket: null, koScores: snap.koScores, koConfirmed: snap.koConfirmed });
+        setSim({ groupScores: snap.groupScores, groupPlayed: snap.groupPlayed, koBracket: snap.koBracket, koScores: snap.koScores, koConfirmed: snap.koConfirmed });
         setLiveGroupState(snap.groupScores ? { groupScores: snap.groupScores, groupPlayed: snap.groupPlayed } : null);
-        setLiveKoState(snap.koScores ? { koBracket: null, koScores: snap.koScores, koConfirmed: snap.koConfirmed } : null);
+        setLiveKoState(snap.koBracket ? { koBracket: snap.koBracket, koScores: snap.koScores, koConfirmed: snap.koConfirmed } : null);
         setLiveDraftState(snap.draftState || null);
         // Redirect "knockout" phase saves to "groups" — knockout is now a tab
         setPhase(snap.phase === "knockout" ? "groups" : (snap.phase || "menu"));
@@ -2061,7 +2068,7 @@
             koConfirmed={liveKoState?.koConfirmed ?? sim?.koConfirmed}
             onKoStateChange={setLiveKoState}
             bracketKey={bracketKey}
-            startOnKnockout={!!advancedTeams}
+            startOnKnockout={!!advancedTeams && !!(liveKoState?.koBracket ?? sim?.koBracket)}
             tournament={tournament}
           />
         </>
